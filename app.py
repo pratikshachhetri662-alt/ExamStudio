@@ -4,6 +4,7 @@ import streamlit as st
 from questions_complete import sql_questions
 from excel_questions import excel_questions
 from excel_part2_questions import EXCEL_PART2_QUESTIONS
+from excel_part2_formulas import EXCEL_PART2_FORMULAS
 st.set_page_config(
     page_title="ExamStudio",
     page_icon="📚",
@@ -213,5 +214,51 @@ if st.session_state.subject == "Excel Part 2":
             st.rerun()
         else:
             st.info("No incorrect questions to revise!")
+if st.session_state.subject == "Excel Part 2":
+    st.divider()
+    st.header("✍️ Practical Excel Formula Exercises")
+
+    if "formula_index" not in st.session_state:
+        st.session_state.formula_index = 0
+
+    index = st.session_state.formula_index
+    question = EXCEL_PART2_FORMULAS[index]
+
+    st.write(
+        f"Formula Question {index + 1} of {len(EXCEL_PART2_FORMULAS)}"
+    )
+    st.write(question["question"])
+
+    user_formula = st.text_input(
+        "Type your Excel formula:",
+        key=f"formula_answer_{index}"
+    )
+
+    if st.button("Check Formula"):
+        submitted = user_formula.strip().replace(" ", "").upper()
+        expected = question["answer"].strip().replace(" ", "").upper()
+
+        if not submitted:
+            st.warning("Please enter a formula.")
+        elif submitted == expected:
+            st.success("Correct!")
+            st.info(question["explanation"])
+        else:
+            st.error(f"Expected formula: {question['answer']}")
+            st.info(question["explanation"])
+
+    if st.button(
+        "Next Formula Question",
+        disabled=index == len(EXCEL_PART2_FORMULAS) - 1
+    ):
+        st.session_state.formula_index += 1
+        st.rerun()
+
+    if st.button(
+        "Previous Formula Question",
+        disabled=index == 0
+    ):
+        st.session_state.formula_index -= 1
+        st.rerun()
 st.divider()
 st.caption("ExamStudio | Data Analytics in Accounting | Educational Practice Platform")
