@@ -73,4 +73,12 @@ excel_questions = [
   'question': 'What is the most common day of the week for a shooting permit to start? Provide the full '
               'name of the day (not a number).',
   'answer': 'Thursday',
-  'explanation': ''}]
+  'explanation': ''
+  },    
+  {
+        'id': 20,
+        'question': 'What percentage of shooting permits include shooting at least a partial day on a Friday? Round the percentage to two decimal places.',
+        'answer': '23.65%',
+        'explanation': 'The correct percentage is 23.65%.'
+    },
+]
