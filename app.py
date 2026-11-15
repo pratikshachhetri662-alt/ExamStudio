@@ -72,7 +72,7 @@ if st.session_state.subject == "Excel":
         elif submitted_answer == correct_answer:
             st.success("Correct!")
         else:
-            st.error("Incorrect. Please try again.")
+            st.error(f"Incorrect. The correct answer is: {question['answer']}")
 
     st.divider() 
     if st.button("Next Question", disabled=excel_question_index == len(excel_questions) - 1):
