@@ -3,7 +3,7 @@ import streamlit as st
 
 from questions_complete import sql_questions
 from excel_questions import excel_questions
-
+from excel_part2_questions import EXCEL_PART2_QUESTIONS
 st.set_page_config(
     page_title="ExamStudio",
     page_icon="📚",
@@ -25,7 +25,7 @@ st.header("Choose Your Practice Area")
 st.caption("Select Excel or SQL below to begin practising. Answer each question, check your response, and use the navigation buttons to continue.")
 st.info("Study tip: Review the correct answers and explanations to strengthen your understanding before moving to the next question.")
 
-col1, col2 = st.columns(2)
+col1, col2, col3 = st.columns(3)
 
 
 if "subject" not in st.session_state:
@@ -38,7 +38,9 @@ with col1:
 with col2:
     if st.button("🗄️ SQL Practice"):
         st.session_state.subject = "SQL"
-
+with col3:
+    if st.button("📘 Excel Part 2 — ETL"):
+        st.session_state.subject = "Excel Part 2"
 if st.session_state.subject:
     st.info(
         f"You selected {st.session_state.subject} Practice!"
@@ -72,8 +74,9 @@ if st.session_state.subject == "Excel":
             st.warning("Please type an answer first.")
         elif submitted_answer == correct_answer:
             st.success("Correct!")
-        if question_number in st.session_state.excel_mistakes:
-            st.session_state.excel_mistakes.remove(question_number)
+            if question_number in st.session_state.excel_mistakes:
+                st.session_state.excel_mistakes.remove(question_number)
+
         else:
             st.error(f"Incorrect. The correct answer is: {question['answer']}")
             if question_number not in st.session_state.excel_mistakes:
@@ -142,5 +145,73 @@ if st.session_state.subject == "SQL":
             st.rerun()
         else:
             st.info("No incorrect questions to revise yet!") 
+if st.session_state.subject == "Excel Part 2":
+    st.divider()
+    st.header("📘 Excel Part 2 — ETL Case Studies")
+
+    if "etl_index" not in st.session_state:
+        st.session_state.etl_index = 0
+
+    if "etl_mistakes" not in st.session_state:
+        st.session_state.etl_mistakes = []
+
+    index = st.session_state.etl_index
+    question = EXCEL_PART2_QUESTIONS[index]
+    number = index + 1
+
+    st.progress(number / len(EXCEL_PART2_QUESTIONS))
+    st.write(f"Question {number} of {len(EXCEL_PART2_QUESTIONS)}")
+    st.caption(question["case"])
+    st.subheader(question["question"])
+
+    answer = st.radio(
+        "Choose your answer:",
+        question["options"],
+        index=None,
+        key=f"etl_answer_{number}"
+    )
+
+    if st.button("Check ETL Answer", key=f"check_etl_{number}"):
+        if answer is None:
+            st.warning("Please select an answer first.")
+        elif answer == question["answer"]:
+            st.success("Correct!")
+            if number in st.session_state.etl_mistakes:
+                st.session_state.etl_mistakes.remove(number)
+        else:
+            st.error(f"Incorrect. Correct answer: {question['answer']}")
+            if number not in st.session_state.etl_mistakes:
+                st.session_state.etl_mistakes.append(number)
+
+        if answer is not None:
+            st.info(question["explanation"])
+
+    col_prev, col_next = st.columns(2)
+
+    with col_prev:
+        if st.button("Previous ETL Question", disabled=index == 0):
+            st.session_state.etl_index -= 1
+            st.rerun()
+
+    with col_next:
+        if st.button(
+            "Next ETL Question",
+            disabled=index == len(EXCEL_PART2_QUESTIONS) - 1
+        ):
+            st.session_state.etl_index += 1
+            st.rerun()
+
+    st.write(
+        "Questions to Revise:",
+        ", ".join(map(str, sorted(st.session_state.etl_mistakes)))
+        or "None yet"
+    )
+
+    if st.button("Revise My ETL Mistakes"):
+        if st.session_state.etl_mistakes:
+            st.session_state.etl_index = min(st.session_state.etl_mistakes) - 1
+            st.rerun()
+        else:
+            st.info("No incorrect questions to revise!")
 st.divider()
 st.caption("ExamStudio | Data Analytics in Accounting | Educational Practice Platform")
