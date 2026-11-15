@@ -49,7 +49,8 @@ if st.session_state.subject:
 if st.session_state.subject == "Excel":
     st.divider()
     st.header("📊 Excel Practice")
-
+    if "excel_mistakes" not in st.session_state:
+        st.session_state.excel_mistakes = []
     excel_question_index = st.session_state.get("excel_question_index", 0)
     question_number = excel_question_index + 1
     st.progress(question_number / len(excel_questions))
@@ -71,9 +72,14 @@ if st.session_state.subject == "Excel":
             st.warning("Please type an answer first.")
         elif submitted_answer == correct_answer:
             st.success("Correct!")
+        if question_number in st.session_state.excel_mistakes:
+            st.session_state.excel_mistakes.remove(question_number)
         else:
             st.error(f"Incorrect. The correct answer is: {question['answer']}")
-
+            if question_number not in st.session_state.excel_mistakes:
+                st.session_state.excel_mistakes.append(question_number)
+    if st.session_state.excel_mistakes:
+        st.write("Questions to Revise:", ", ".join(map(str, sorted(st.session_state.excel_mistakes))))
     st.divider() 
     if st.button("Next Question", disabled=excel_question_index == len(excel_questions) - 1):
         if excel_question_index < len(excel_questions) - 1:
@@ -83,6 +89,10 @@ if st.session_state.subject == "Excel":
         if excel_question_index > 0:
             st.session_state.excel_question_index = excel_question_index - 1
             st.rerun()
+    if st.session_state.excel_mistakes:
+        if st.button("Revise My Mistakes", key="revise_excel"):
+            st.session_state.excel_question_index = min(st.session_state.excel_mistakes) - 1
+            st.rerun()   
 if st.session_state.subject == "SQL":
     sql_question_index = st.session_state.get("sql_question_index", 0) 
     st.divider()
