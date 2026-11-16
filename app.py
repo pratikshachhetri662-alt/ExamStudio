@@ -6,6 +6,7 @@ from excel_questions import excel_questions
 from excel_part2_questions import EXCEL_PART2_QUESTIONS
 from excel_part2_formulas import EXCEL_PART2_FORMULAS
 from excel_part3_questions_generated import EXCEL_PART3_QUESTIONS
+from excel_part4_questions import EXCEL_PART4_QUESTIONS
 st.set_page_config(
     page_title="ExamStudio",
     page_icon="📚",
@@ -27,7 +28,7 @@ st.header("Choose Your Practice Area")
 st.caption("Select Excel or SQL below to begin practising. Answer each question, check your response, and use the navigation buttons to continue.")
 st.info("Study tip: Review the correct answers and explanations to strengthen your understanding before moving to the next question.")
 
-col1, col2, col3, col4 = st.columns(4)
+col1, col2, col3, col4, col5 = st.columns(5)
 
 
 if "subject" not in st.session_state:
@@ -46,6 +47,9 @@ with col3:
 with col4:
     if st.button("📈 Excel Part 3 — IntegrateCo"):
         st.session_state.subject = "Excel Part 3"
+with col5:
+    if st.button("🍽️ Excel Part 4 — Restaurant"):
+        st.session_state.subject = "Excel Part 4"  
 if st.session_state.subject:
     st.info(
         f"You selected {st.session_state.subject} Practice!"
@@ -333,5 +337,84 @@ if st.session_state.subject == "Excel Part 3":
             st.rerun()
         else:
             st.info("No incorrect questions to revise!")
+
+# Excel Part 4 — Restaurant Sales Forecasting
+if st.session_state.subject == "Excel Part 4":
+
+    st.header("🍽️ Excel Part 4 — Restaurant Sales Forecasting")
+
+    if "part4_index" not in st.session_state:
+        st.session_state.part4_index = 0
+    if "part4_mistakes" not in st.session_state:
+        st.session_state.part4_mistakes = []
+    index = st.session_state.part4_index
+    question = EXCEL_PART4_QUESTIONS[index]
+
+    st.write(f"Question {index + 1} of {len(EXCEL_PART4_QUESTIONS)}")
+    st.progress((index + 1) / len(EXCEL_PART4_QUESTIONS))
+    st.write(question["question"])
+
+    user_answer = st.text_input(
+        "Your answer:",
+        key=f"part4_answer_{index}"
+    )
+
+    
+    if st.button("Check Part 4 Answer"):
+        submitted = user_answer.strip().lower()
+        expected = str(question["answer"]).strip().lower()
+
+        if not submitted:
+            st.warning("Please enter an answer.")
+
+        elif submitted == expected:
+            st.success("Correct!")
+            st.info(question["explanation"])
+
+            if index + 1 in st.session_state.part4_mistakes:
+                st.session_state.part4_mistakes.remove(index + 1)
+
+        else:
+            st.error(f"Incorrect. Suggested answer: {question['answer']}")
+            st.info(question["explanation"])
+
+            if index + 1 not in st.session_state.part4_mistakes:
+                st.session_state.part4_mistakes.append(index + 1)
+
+   
+    col_previous4, col_next4 = st.columns(2)
+
+    with col_previous4:
+        if st.button(
+            "⬅️ Previous Part 4 Question",
+            disabled=(index == 0)
+        ):
+            st.session_state.part4_index -= 1
+            st.rerun()
+
+    with col_next4:
+        if st.button(
+            "Next Part 4 Question ➡️",
+            disabled=(index == len(EXCEL_PART4_QUESTIONS) - 1)
+        ):
+            st.session_state.part4_index += 1
+            st.rerun()
+
+
+    st.write(
+        "Questions to Revise:",
+        ", ".join(map(str, sorted(st.session_state.part4_mistakes)))
+        or "None yet"
+    )
+
+    if st.button("🔄 Revise My Part 4 Mistakes"):
+        if st.session_state.part4_mistakes:
+            st.session_state.part4_index = min(
+                st.session_state.part4_mistakes
+            ) - 1
+            st.rerun()
+        else:
+            st.info("No incorrect questions to revise!")
+
 st.divider()
 st.caption("ExamStudio | Data Analytics in Accounting | Educational Practice Platform")
